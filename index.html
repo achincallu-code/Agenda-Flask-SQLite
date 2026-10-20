@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="hero">
+  <div>
+    <p class="eyebrow">TU ESPACIO DE ORGANIZACIÓN</p>
+    <h1>Agenda de actividades</h1>
+    <p class="hero-text">Guarda tus tareas, organiza tus fechas y lleva el control de lo que ya terminaste.</p>
+  </div>
+  <div class="hero-art" aria-hidden="true">✓</div>
+</section>
+
+<section class="stats">
+  <article class="stat-card"><span class="stat-icon blue">▤</span><div><span class="stat-label">Actividades</span><strong>{{ total }}</strong></div></article>
+  <article class="stat-card"><span class="stat-icon green">✓</span><div><span class="stat-label">Completadas</span><strong>{{ completadas }}</strong></div></article>
+  <article class="stat-card"><span class="stat-icon orange">◷</span><div><span class="stat-label">Pendientes</span><strong>{{ total - completadas }}</strong></div></article>
+</section>
+
+<section class="panel">
+  <div class="section-heading">
+    <div><p class="eyebrow">NUEVA TAREA</p><h2>Agregar actividad</h2></div>
+    <span class="heading-symbol">＋</span>
+  </div>
+  <form action="{{ url_for('agenda.agregar') }}" method="post" class="activity-form">
+    <label>Título <input type="text" name="titulo" maxlength="100" placeholder="Ej. Investigar sobre Flask" required></label>
+    <label>Descripción <input type="text" name="descripcion" maxlength="300" placeholder="Detalles de la actividad (opcional)"></label>
+    <label>Fecha <input type="date" name="fecha" value="{{ hoy }}" required></label>
+    <button class="btn primary" type="submit">＋ Guardar actividad</button>
+  </form>
+</section>
+
+<section class="panel">
+  <div class="section-heading list-heading">
+    <div><p class="eyebrow">TU PLANIFICACIÓN</p><h2>Lista de actividades</h2></div>
+    <span class="count-pill">{{ actividades|length }} registros</span>
+  </div>
+  <form class="filters" method="get" action="{{ url_for('agenda.inicio') }}">
+    <input type="search" name="q" value="{{ q }}" placeholder="Buscar por título o descripción…">
+    <select name="estado" aria-label="Filtrar por estado">
+      <option value="">Todos los estados</option>
+      <option value="Pendiente" {% if estado == 'Pendiente' %}selected{% endif %}>Pendientes</option>
+      <option value="Completada" {% if estado == 'Completada' %}selected{% endif %}>Completadas</option>
+    </select>
+    <button class="btn dark" type="submit">Buscar</button>
+    {% if q or estado %}<a class="clear-filter" href="{{ url_for('agenda.inicio') }}">Limpiar</a>{% endif %}
+  </form>
+  {% if actividades %}
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Actividad</th><th>Fecha</th><th>Estado</th><th class="actions-col">Acciones</th></tr></thead>
+      <tbody>
+      {% for actividad in actividades %}
+        <tr>
+          <td><div class="task-title">{{ actividad.titulo }}</div><div class="task-description">{{ actividad.descripcion or 'Sin descripción' }}</div></td>
+          <td class="date-cell">{{ actividad.fecha }}</td>
+          <td><span class="status {{ 'done' if actividad.estado == 'Completada' else 'pending' }}">{{ actividad.estado }}</span></td>
+          <td><div class="actions">
+            <a class="btn small edit" href="{{ url_for('agenda.editar', id=actividad.id) }}">Editar</a>
+            <form method="post" action="{{ url_for('agenda.completar', id=actividad.id) }}"><button class="btn small toggle" type="submit">{{ 'Reabrir' if actividad.estado == 'Completada' else 'Completar' }}</button></form>
+            <form method="post" action="{{ url_for('agenda.eliminar', id=actividad.id) }}" onsubmit="return confirm('¿Seguro que quieres eliminar esta actividad?');"><button class="btn small delete" type="submit">Eliminar</button></form>
+          </div></td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+    <div class="empty"><span>▤</span><h3>No hay actividades por mostrar</h3><p>Agrega una nueva actividad o cambia los filtros de búsqueda.</p></div>
+  {% endif %}
+</section>
+{% endblock %}

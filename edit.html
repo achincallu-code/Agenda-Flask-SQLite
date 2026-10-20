@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Editar actividad · Agenda{% endblock %}
+{% block content %}
+<section class="hero compact-hero">
+  <div><p class="eyebrow">ACTUALIZAR INFORMACIÓN</p><h1>Editar actividad</h1><p class="hero-text">Modifica los datos y guarda los cambios.</p></div>
+  <div class="hero-art" aria-hidden="true">✎</div>
+</section>
+<section class="panel edit-panel">
+  <form method="post" class="activity-form edit-form">
+    <label>Título <input name="titulo" type="text" maxlength="100" value="{{ actividad.titulo }}" required></label>
+    <label>Descripción <textarea name="descripcion" rows="4" maxlength="300" placeholder="Detalles de la actividad">{{ actividad.descripcion }}</textarea></label>
+    <label>Fecha <input name="fecha" type="date" value="{{ actividad.fecha }}" required></label>
+    <label>Estado
+      <select name="estado">
+        <option value="Pendiente" {% if actividad.estado == 'Pendiente' %}selected{% endif %}>Pendiente</option>
+        <option value="Completada" {% if actividad.estado == 'Completada' %}selected{% endif %}>Completada</option>
+      </select>
+    </label>
+    <div class="form-actions"><button class="btn primary" type="submit">Guardar cambios</button><a class="btn cancel" href="{{ url_for('agenda.inicio') }}">Cancelar</a></div>
+  </form>
+</section>
+{% endblock %}
